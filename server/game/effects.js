@@ -1407,6 +1407,24 @@ const Effects = {
             isStateDependent: true
         };
     },
+    revealCards: function(revealFunc) {
+        return {
+            targetType: 'player',
+            apply: function(player, context) {
+                let visibleRevealFunc = (card) => card.controller === player && revealFunc(card, context);
+
+                context.revealCards = context.revealCards || {};
+                context.revealCards[player.name] = visibleRevealFunc;
+                context.game.cardVisibility.addRule(visibleRevealFunc);
+            },
+            unapply: function(player, context) {
+                let visibleRevealFunc = context.revealCards[player.name];
+
+                context.game.cardVisibility.removeRule(visibleRevealFunc);
+                delete context.revealCards[player.name];
+            }
+        };
+    },
     cannotRevealPlot: function() {
         return {
             targetType: 'player',
