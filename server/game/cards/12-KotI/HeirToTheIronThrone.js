@@ -1,5 +1,6 @@
 const GameActions = require('../../GameActions');
 const PlotCard = require('../../plotcard');
+const GameActions = require('../../GameActions');
 
 class HeirToTheIronThrone extends PlotCard {
     setupCardAbilities() {

@@ -1,10 +1,9 @@
 const DrawCard = require('../../drawcard.js');
-const GameActions = require('../../GameActions/index.js');
+const GameActions = require('../../GameActions');
 
 class IPledgeMyLifeAndHonor extends DrawCard {
     setupCardAbilities() {
         this.reaction({
-            title: 'Search deck for character',
             when: {
                 afterChallenge: event => event.challenge.winner === this.controller && event.challenge.defendingPlayer === this.controller
             },
