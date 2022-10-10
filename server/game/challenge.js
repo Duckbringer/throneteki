@@ -2,6 +2,7 @@ const Player = require('./player.js');
 const EventRegistrar = require('./eventregistrar.js');
 const Settings = require('../settings.js');
 const ChallengeMatcher = require('./ChallengeMatcher');
+const ChallengeStrengthModifier = require('./gamesteps/ChallengeStrengthModifier')
 
 class Challenge {
     constructor(game, properties) {
@@ -19,10 +20,10 @@ class Challenge {
         this.attackers = [];
         this.declaredAttackers = [];
         this.attackerStrength = 0;
-        this.attackerStrengthModifier = 0;
+        this.attackerStrengthModifiers = [];
         this.defenders = [];
         this.defenderStrength = 0;
-        this.defenderStrengthModifier = 0;
+        this.defenderStrengthModifiers = [];
         this.stealthData = [];
         this.assaultData = [];
         this.events = new EventRegistrar(game, this);
@@ -167,9 +168,10 @@ class Challenge {
         if(this.winnerDetermined) {
             return;
         }
-
-        this.attackerStrength = this.calculateStrengthFor(this.attackers) + this.attackerStrengthModifier;
-        this.defenderStrength = this.calculateStrengthFor(this.defenders) + this.defenderStrengthModifier;
+        const attackerStrengthModifier = this.attackerStrengthModifiers.reduce((totalSTR, modifier) => totalSTR + modifier.get(), 0);
+        this.attackerStrength = this.calculateStrengthFor(this.attackers) + attackerStrengthModifier;
+        const defenderStrengthModifier = this.defenderStrengthModifiers.reduce((totalSTR, modifier) => totalSTR + modifier.get(), 0);
+        this.defenderStrength = this.calculateStrengthFor(this.defenders) + defenderStrengthModifier;
     }
 
     calculateStrengthFor(cards) {
@@ -182,14 +184,12 @@ class Challenge {
         }, 0);
     }
 
-    modifyAttackerStrength(value) {
-        this.attackerStrengthModifier += value;
-        this.calculateStrength();
+    addAttackerStrengthModifier(source, strengthFunc) {
+        this.attackerStrengthModifiers.push(new ChallengeStrengthModifier(this.game, source, this, strengthFunc));
     }
 
-    modifyDefenderStrength(value) {
-        this.defenderStrengthModifier += value;
-        this.calculateStrength();
+    addDefenderStrengthModifier(source, strengthFunc) {
+        this.defenderStrengthModifiers.push(new ChallengeStrengthModifier(this.game, source, this, strengthFunc));
     }
 
     addParticipantToSide(player, card) {

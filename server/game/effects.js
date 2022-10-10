@@ -964,8 +964,74 @@ const Effects = {
             }
         };
     },
+    contributeChallengeStrength: function(valueOrCalculate, player) {
+        const calculate = (typeof valueOrCalculate === 'function') ? valueOrCalculate : () => valueOrCalculate;
+
+        return {
+            apply: function(card, context) {
+                let challenge = context.game.currentChallenge;
+                if(!challenge) {
+                    return;
+                }
+
+                player = player || context.player;
+                const value = calculate(context);
+                context.contributeChallengeStrength = context.contributeChallengeStrength || {};
+                context.contributeChallengeStrength[card.uuid] = { value, player }; // TODO: Confirm this is right. Currently it will only allow 1 card to contribute STR to 1 player, and will mean the LATEST effect will apply over any previous effects for that card
+
+                challenge.addContributeStrength(card, player, value);
+            },
+            reapply: function(card, context) {
+                let challenge = context.game.currentChallenge;
+                if(!challenge) {
+                    return;
+                }
+
+                player = player || context.player;
+                const value = calculate(context);
+                context.contributeChallengeStrength = context.contributeChallengeStrength || {};
+                context.contributeChallengeStrength[card.uuid] = { value, player }; // TODO: Confirm this is right. Currently it will only allow 1 card to contribute STR to 1 player, and will mean the LATEST effect will apply over any previous effects for that card
+
+                // addContributeStrength on an existing contributeStrength instance will simply update the STR value
+                challenge.addContributeStrength(card, player, value);
+            },
+            unapply: function(card, context) {
+                let challenge = context.game.currentChallenge;
+                if(!challenge) {
+                    return;
+                }
+                player = player || context.player;
+
+                context.contributeChallengeStrength = context.contributeChallengeStrength || {};
+                delete context.contributeChallengeStrength[card.uuid];
+
+                challenge.removeContributeStrength(card, player);
+            }
+        }
+    },
+    contributeCharacterStrength: function(player) {
+        return {
+            apply: function(card, context) {
+                let challenge = context.game.currentChallenge;
+                if(!challenge) {
+                    return;
+                }
+
+                player = player || context.player;
+
+                context.contributeCharacterStrength = context.contributeCharacterStrength || {};
+                context.contributeCharacterStrength[card.uuid] = player;
+
+                challenge.addContributeStrength(card, player);
+            },
+            reapply: function(card, context) {
+                
+            }
+        }
+    },
     contributeChallengeStrength: function(valueOrCalculate) {
         const calculate = (typeof valueOrCalculate === 'function') ? valueOrCalculate : () => valueOrCalculate;
+        
         return {
             targetType: 'player',
             apply: function(player, context) {
