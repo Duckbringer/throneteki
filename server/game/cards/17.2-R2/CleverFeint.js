@@ -8,8 +8,8 @@ class CleverFeint extends DrawCard {
             cost: [
                 ability.costs.kneelFactionCard(),
                 ability.costs.payXGold(
-                    () => this.getMinimumCost(),
-                    () => 99
+                    () => 1,
+                    () => this.getMaximumCost()
                 )
             ],
             target: {
@@ -31,6 +31,15 @@ class CleverFeint extends DrawCard {
             }
         });
     }
+
+    getMaximumCost() {
+        return this.game
+            .filterCardsInPlay(
+                (card) => card.location === 'play area' && card.controller === this.controller && card.isShadow()
+            )
+            .count();
+    }
+
 }
 
 CleverFeint.code = '17167';
